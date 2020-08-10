@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package claims;
+
+message Claims {
+  string login = 1;
+  string description = 2;
+  string value = 3;
+}
+
+message AddClaimsRequest {
+  string login = 1;
+  map<string, string > claims = 2;
+}
+
+message EmptyResponse {
+}
+
+message EmptyRequest {
+}
+
+message GetClaimsResponse {
+  repeated Claims claims = 1;
+}
+
+message DeleteClaimsRequest {
+  string login = 1;
+  map<string, string> claims = 2;
+}
+
+message IfExistClaimsRequest {
+  string login = 1;
+}
+
+message IfExistClaimsResponse {
+  Claims claim = 1;
+}
+
+service ClaimsService {
+  rpc DeleteClaims (DeleteClaimsRequest) returns (EmptyResponse);
+  rpc AddClaims (AddClaimsRequest) returns (EmptyResponse);
+  rpc GetClaims (EmptyRequest) returns (GetClaimsResponse);
+  rpc IfExistClaims (IfExistClaimsRequest) returns (IfExistClaimsResponse);
+  rpc DeleteAllClaims (EmptyRequest) returns (EmptyResponse);
+}
+
