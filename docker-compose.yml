@@ -1,0 +1,78 @@
+version: "3.8"
+
+services:
+  grpc_claims_server:
+    container_name: grpc_claims_server
+    image: charleych/nest-grpc:grpc-claims-server
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - ${CLAIMS_PORT}:${CLAIMS_PORT}
+      - 9229:9229
+    command: npm run start
+    env_file:
+      - .env
+    networks:
+      - host
+    depends_on:
+      - mongo
+  mongo:
+    container_name: mongo
+    image: mongo:latest
+    environment:
+      MONGO_DATA: /var/lib/mongodb/data
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+      - 27019:27019
+    volumes:
+    - mongodb_data_container:/var/lib/mongodb/data
+  grpc_server:
+    image: charleych/nest-grpc:grpc-server
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - ${SERVER_PORT}:${SERVER_PORT}
+      - 9227:9227
+    command: npm run start
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - postgres
+  redis:
+    container_name: redis
+    image: redis:5
+    ports:
+      - ${REDIS_PORT}:${REDIS_PORT}
+      - 6378:6378
+  postgres:
+    container_name: postgres
+    image: postgres:12
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - 5433:5433
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  grpc_client:
+    container_name: grpc_client
+    image: charleych/nest-grpc:grpc-client
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - ${CLIENT_PORT}:${CLIENT_PORT}
+      - 9228:9228
+    command: npm run start
+    env_file:
+      - .env
+networks:
+  host:
+volumes:
+  pgdata:
+  mongodb_data_container:
